@@ -1,19 +1,19 @@
 #pragma once
 
-void level(RenderWindow& window), menu(RenderWindow& window);
+void level(RenderWindow& window, View& view), menu(RenderWindow& window, View& view);
 
-string getPlayerStats(Player player)
+string getPlayerStats(Player player, vector<Object>& objects)
 {
-    return
-        " size:\n x: " + to_string(player.size.x) + "\n y: " + to_string(player.size.y) +
-        "\n\n position:\n x: " + to_string(player.position.x) + "\n y: " + to_string(player.position.y) +
-        "\n\n speed:\n x: " + to_string(player.speed.x) + "\n y: " + to_string(player.speed.y) +
-        "\n\n acceleration:\n x: " + to_string(player.acceleration.x) + "\n y: " + to_string(player.acceleration.y) +
-        "\n\n standing: " + (player.isStanding() ? "true" : "false");
+	return
+		" size:\n x: " + to_string(player.size.x) + "\n y: " + to_string(player.size.y) +
+		"\n\n position:\n x: " + to_string(player.position.x) + "\n y: " + to_string(player.position.y) +
+		"\n\n speed:\n x: " + to_string(player.speed.x) + "\n y: " + to_string(player.speed.y) +
+		"\n\n acceleration:\n x: " + to_string(player.acceleration.x) + "\n y: " + to_string(player.acceleration.y) +
+		"\n\n standing: " + (player.isStanding(objects) ? "true" : "false");
 }
 
 
-void menu(RenderWindow& window)
+void menu(RenderWindow& window, View& view)
 {
 	Font font;
 	Text text;
@@ -21,6 +21,9 @@ void menu(RenderWindow& window)
 	font.loadFromFile("Fonts/ARLRDBD.TTF");
 	text.setFont(font);
 	text.setString(" PRESS SPACE TO PLAY\n PRESS ESC TO EXIT");
+
+	view = window.getDefaultView();
+	window.setView(view);
 
 	while (true)
 	{
@@ -39,7 +42,7 @@ void menu(RenderWindow& window)
 
 				case Keyboard::Scancode::Space:
 
-					return level(window);
+					return level(window, view);
 
 				case Keyboard::Scancode::Escape:
 
@@ -57,16 +60,16 @@ void menu(RenderWindow& window)
 }
 
 
-void level(RenderWindow& window)
+void level(RenderWindow& window, View& view)
 {
 	high_resolution_clock::time_point start;
 	high_resolution_clock::time_point end;
 
-	Player player(Vector2f(100, 100), Vector2f(0, 450), Vector2f(0, 0), Vector2f(0, 1), "Textures/player.png");
+	Player player(Vector2f(50, 50), Vector2f(25, 475), Vector2f(0, 0), Vector2f(0, 1), "Textures/player.png");
 
 	Font font;
 	Text text;
-	bool stats_output = false;
+	bool stats_output = true;
 
 	font.loadFromFile("Fonts/ARLRDBD.TTF");
 	text.setFont(font);
@@ -83,7 +86,7 @@ void level(RenderWindow& window)
 	Object ob9(Vector2f(100, 100), Vector2f(0, 250), ObjectType::Safe, "Textures/grass.png");
 	Object ob10(Vector2f(100, 100), Vector2f(250, 150), ObjectType::Safe, "Textures/wood.png");
 	Object ob11(Vector2f(100, 100), Vector2f(0, 350), ObjectType::Safe, "Textures/dirt.png");
-	Object ob12(Vector2f(100, 100), Vector2f(900, 650), ObjectType::Dangerous, "Textures/spikes.png");
+	Object ob12(Vector2f(100, 100), Vector2f(250, 50), ObjectType::Dangerous, "Textures/spikes.png");
 	vector<Object> objects{ ob0, ob1, ob2, ob3, ob4, ob5, ob6, ob7, ob8, ob9, ob10, ob11, ob12 };
 
 	Object bg0(Vector2f(200, 100), Vector2f(0, 450), ObjectType::Safe, "Textures/bg_dirt.png");
@@ -115,15 +118,15 @@ void level(RenderWindow& window)
 
 				case Keyboard::Scancode::Escape:
 
-					return menu(window);
+					return menu(window, view);
 				}
 			}
 		}
 
-		if (Keyboard::isKeyPressed(Keyboard::A)) player.position.x += -5;
-		if (Keyboard::isKeyPressed(Keyboard::D)) player.position.x += 5;
+		if (Keyboard::isKeyPressed(Keyboard::A)) player.position.x += -7;
+		if (Keyboard::isKeyPressed(Keyboard::D)) player.position.x += 7;
 
-		if (player.isStanding())
+		if (player.isStanding(objects))
 		{
 			if (Keyboard::isKeyPressed(Keyboard::Space))
 			{
@@ -145,6 +148,9 @@ void level(RenderWindow& window)
 		player.move(window, objects);
 
 
+		view.setCenter(Vector2f(player.position.x + player.size.x / 2, player.position.y + player.size.y / 2));
+		window.setView(view);
+
 		if (player.acceleration.y)
 		{
 			window.clear((player.acceleration.y > 0 ? Color(66, 135, 245) : Color(235, 158, 52)));
@@ -156,7 +162,8 @@ void level(RenderWindow& window)
 
 		if (stats_output)
 		{
-			text.setString(getPlayerStats(player));
+			text.setPosition(Vector2f(view.getCenter().x - view.getSize().x / 2, view.getCenter().y - view.getSize().y / 2));
+			text.setString(getPlayerStats(player, objects));
 			window.draw(text);
 		}
 
