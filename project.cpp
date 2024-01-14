@@ -1,4 +1,4 @@
-﻿#include "Includes.h"
+#include "Includes.h"
 #include "Classes.h"
 #include "Functions.h"
 #include "Enums.h"
@@ -6,8 +6,10 @@
 
 int main()
 {
-	RenderWindow window(VideoMode(1000, 750), "");
+	RenderWindow window(VideoMode(1800, 1000), "");
 	window.setFramerateLimit(60);
 
-	menu(window);
+	View view;
+
+	menu(window, view);
 }
