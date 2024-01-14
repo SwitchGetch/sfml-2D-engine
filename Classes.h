@@ -66,14 +66,14 @@ public:
 		return player;
 	}
 
-	bool isStanding(vector<Object>& objects)
+	bool isStanding()
 	{
 		return standing;
 	}
 
 	void move(RenderWindow& window, vector<Object>& objects)
 	{
-		bool changed = false;
+		standing = false;
 
 		/*if (position.x < 0)
 		{
@@ -104,22 +104,20 @@ public:
 			if (acceleration.y && !standing) standing = acceleration.y > 0;
 		}*/
 
-		double minX, minY, maxX, maxY, sideX, sideY, x, y;
-
 		for (int i = 0; i < objects.size(); i++)
 		{
-			minX = min(position.x, objects[i].position.x);
-			minY = min(position.y, objects[i].position.y);
-			maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
-			maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
+			double minX = min(position.x, objects[i].position.x);
+			double minY = min(position.y, objects[i].position.y);
+			double maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
+			double maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
 
-			sideX = maxX - minX;
-			sideY = maxY - minY;
+			double sideX = maxX - minX;
+			double sideY = maxY - minY;
 
 			if (sideX < size.x + objects[i].size.x && sideY < size.y + objects[i].size.y)
 			{
-				x = size.x + objects[i].size.x - sideX;
-				y = size.y + objects[i].size.y - sideY;
+				double x = size.x + objects[i].size.x - sideX;
+				double y = size.y + objects[i].size.y - sideY;
 
 				if (x <= y)
 				{
@@ -127,21 +125,13 @@ public:
 					{
 						position.x = objects[i].position.x - size.x;
 
-						if (acceleration.x && !changed)
-						{
-							standing = acceleration.x > 0;
-							changed = true;
-						}
+						if (acceleration.x && !standing) standing = acceleration.x > 0;
 					}
 					else
 					{
 						position.x = objects[i].position.x + objects[i].size.x;
 
-						if (acceleration.x && !changed)
-						{
-							standing = acceleration.x < 0;
-							changed = true;
-						}
+						if (acceleration.x && !standing) standing = acceleration.x < 0;
 					}
 
 					speed.x = 0;
@@ -153,21 +143,13 @@ public:
 					{
 						position.y = objects[i].position.y - size.y;
 
-						if (acceleration.y && !changed)
-						{
-							standing = acceleration.y > 0;
-							changed = true;
-						}
+						if (acceleration.y && !standing) standing = acceleration.y > 0;
 					}
 					else
 					{
 						position.y = objects[i].position.y + objects[i].size.y;
 
-						if (acceleration.y && !changed)
-						{
-							standing = acceleration.y < 0;
-							changed = true;
-						}
+						if (acceleration.y && !standing) standing = acceleration.y < 0;
 					}
 
 					speed.y = 0;
