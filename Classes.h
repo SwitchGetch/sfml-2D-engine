@@ -50,7 +50,7 @@ public:
 
 	Player() = default;
 
-	Player(Vector2f size, Vector2f position, Vector2f speed, Vector2f acceleration, string texture_file_name) : 
+	Player(Vector2f size, Vector2f position, Vector2f speed, Vector2f acceleration, string texture_file_name) :
 		size(size), position(position), speed(speed), acceleration(acceleration),
 		start_size(size), start_position(position), start_speed(speed), start_acceleration(acceleration)
 	{
@@ -66,16 +66,16 @@ public:
 		return player;
 	}
 
-	bool isStanding()
+	bool isStanding(vector<Object>& objects)
 	{
 		return standing;
 	}
 
 	void move(RenderWindow& window, vector<Object>& objects)
 	{
-		standing = false;
+		bool changed = false;
 
-		if (position.x < 0)
+		/*if (position.x < 0)
 		{
 			position.x = 0;
 			speed.x = 0;
@@ -102,22 +102,24 @@ public:
 			speed.y = 0;
 
 			if (acceleration.y && !standing) standing = acceleration.y > 0;
-		}
+		}*/
+
+		double minX, minY, maxX, maxY, sideX, sideY, x, y;
 
 		for (int i = 0; i < objects.size(); i++)
 		{
-			double minX = min(position.x, objects[i].position.x);
-			double minY = min(position.y, objects[i].position.y);
-			double maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
-			double maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
+			minX = min(position.x, objects[i].position.x);
+			minY = min(position.y, objects[i].position.y);
+			maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
+			maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
 
-			double sideX = maxX - minX;
-			double sideY = maxY - minY;
+			sideX = maxX - minX;
+			sideY = maxY - minY;
 
 			if (sideX < size.x + objects[i].size.x && sideY < size.y + objects[i].size.y)
 			{
-				double x = size.x + objects[i].size.x - sideX;
-				double y = size.y + objects[i].size.y - sideY;
+				x = size.x + objects[i].size.x - sideX;
+				y = size.y + objects[i].size.y - sideY;
 
 				if (x <= y)
 				{
@@ -125,13 +127,21 @@ public:
 					{
 						position.x = objects[i].position.x - size.x;
 
-						if (acceleration.x && !standing) standing = acceleration.x > 0;
+						if (acceleration.x && !changed)
+						{
+							standing = acceleration.x > 0;
+							changed = true;
+						}
 					}
 					else
 					{
 						position.x = objects[i].position.x + objects[i].size.x;
 
-						if (acceleration.x && !standing) standing = acceleration.x < 0;
+						if (acceleration.x && !changed)
+						{
+							standing = acceleration.x < 0;
+							changed = true;
+						}
 					}
 
 					speed.x = 0;
@@ -143,16 +153,24 @@ public:
 					{
 						position.y = objects[i].position.y - size.y;
 
-						if (acceleration.y && !standing) standing = acceleration.y > 0;
+						if (acceleration.y && !changed)
+						{
+							standing = acceleration.y > 0;
+							changed = true;
+						}
 					}
 					else
 					{
 						position.y = objects[i].position.y + objects[i].size.y;
 
-						if (acceleration.y && !standing) standing = acceleration.y < 0;
+						if (acceleration.y && !changed)
+						{
+							standing = acceleration.y < 0;
+							changed = true;
+						}
 					}
 
-					speed.y = 0;	
+					speed.y = 0;
 				}
 
 				if (objects[i].type == ObjectType::Dangerous)
