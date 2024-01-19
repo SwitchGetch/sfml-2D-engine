@@ -2,6 +2,15 @@
 
 #include "Enums.h"
 
+class ObjectStat
+{
+public:
+
+	int index;
+	Direction dx = None;
+	Direction dy = None;
+};
+
 class Object
 {
 	RectangleShape object;
@@ -68,94 +77,77 @@ public:
 
 	bool isStanding()
 	{
+		/*double minX, minY, maxX, maxY, sideX, sideY;
+	
+		for (int i = 0; i < objects.size(); i++)
+		{
+			minX = min(position.x, objects[i].position.x);
+			minY = min(position.y, objects[i].position.y);
+			maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
+			maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
+	
+			sideX = maxX - minX;
+			sideY = maxY - minY;
+	
+			if (
+				(sideX <= size.x + objects[i].size.x && sideY <= size.y + objects[i].size.y) &&
+				(
+				acceleration.x > 0 && minX == position.x ||
+				acceleration.x < 0 && maxX == position.x + size.x ||
+				acceleration.y > 0 && minY == position.y ||
+				acceleration.y < 0 && maxY == position.y + size.y
+					)
+				)
+			{
+				return true;
+			}
+		}
+
+		return false;*/
+
 		return standing;
 	}
 
-	void move(RenderWindow& window, vector<Object>& objects)
+	void move(vector<Object>& objects)
 	{
-		standing = false;
+		double minX, minY, maxX, maxY, sideX, sideY, x, y;
+		vector<ObjectStat> collisions;
+		int vector_size;
 
-		/*if (position.x < 0)
+		position += speed;
+		speed += acceleration;
+
+		vector_size = objects.size();
+		for (int i = 0; i < vector_size; i++)
 		{
-			position.x = 0;
-			speed.x = 0;
+			minX = min(position.x, objects[i].position.x);
+			minY = min(position.y, objects[i].position.y);
+			maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
+			maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
 
-			if (acceleration.x && !standing) standing = acceleration.x < 0;
-		}
-		if (position.x + size.x > window.getSize().x)
-		{
-			position.x = window.getSize().x - size.x;
-			speed.x = 0;
-
-			if (acceleration.x && !standing) standing = acceleration.x > 0;
-		}
-		if (position.y < 0)
-		{
-			position.y = 0;
-			speed.y = 0;
-
-			if (acceleration.y && !standing) standing = acceleration.y < 0;
-		}
-		if (position.y + size.y > window.getSize().y)
-		{
-			position.y = window.getSize().y - size.y;
-			speed.y = 0;
-
-			if (acceleration.y && !standing) standing = acceleration.y > 0;
-		}*/
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			double minX = min(position.x, objects[i].position.x);
-			double minY = min(position.y, objects[i].position.y);
-			double maxX = max(position.x + size.x, objects[i].position.x + objects[i].size.x);
-			double maxY = max(position.y + size.y, objects[i].position.y + objects[i].size.y);
-
-			double sideX = maxX - minX;
-			double sideY = maxY - minY;
+			sideX = maxX - minX;
+			sideY = maxY - minY;
 
 			if (sideX < size.x + objects[i].size.x && sideY < size.y + objects[i].size.y)
 			{
-				double x = size.x + objects[i].size.x - sideX;
-				double y = size.y + objects[i].size.y - sideY;
+				x = size.x + objects[i].size.x - sideX;
+				y = size.y + objects[i].size.y - sideY;
 
-				if (x <= y)
-				{
-					if (minX == position.x)
-					{
-						position.x = objects[i].position.x - size.x;
-
-						if (acceleration.x && !standing) standing = acceleration.x > 0;
-					}
-					else
-					{
-						position.x = objects[i].position.x + objects[i].size.x;
-
-						if (acceleration.x && !standing) standing = acceleration.x < 0;
-					}
-
-					speed.x = 0;
-				}
+				ObjectStat collision;
+				collision.index = i;
 
 				if (x >= y)
 				{
-					if (minY == position.y)
-					{
-						position.y = objects[i].position.y - size.y;
 
-						if (acceleration.y && !standing) standing = acceleration.y > 0;
-					}
-					else
-					{
-						position.y = objects[i].position.y + objects[i].size.y;
-
-						if (acceleration.y && !standing) standing = acceleration.y < 0;
-					}
-
-					speed.y = 0;
 				}
 
-				if (objects[i].type == ObjectType::Dangerous)
+				if (x <= y)
+				{
+
+				}
+
+
+				/*if (objects[i].type == ObjectType::Dangerous)
 				{
 					size = start_size;
 					position = start_position;
@@ -164,7 +156,53 @@ public:
 
 					break;
 				}
+
+				x = size.x + objects[i].size.x - sideX;
+				y = size.y + objects[i].size.y - sideY;
+
+				if (x >= y)
+				{
+					if (minY == position.y)
+					{
+						position.y = objects[i].position.y - size.y;
+					}
+					else
+					{
+						position.y = objects[i].position.y + objects[i].size.y;
+					}
+
+					speed.y = 0;
+				}
+
+				if (x <= y)
+				{
+					if (minX == position.x)
+					{
+						position.x = objects[i].position.x - size.x;
+					}
+					else
+					{
+						position.x = objects[i].position.x + objects[i].size.x;
+					}
+
+					speed.x = 0;
+				}*/
 			}
+		}
+
+		vector_size = index.size();
+		for (int i = 0; i < vector_size; i++)
+		{
+			minX = min(position.x, objects[index[i]].position.x);
+			minY = min(position.y, objects[index[i]].position.y);
+			maxX = max(position.x + size.x, objects[index[i]].position.x + objects[index[i]].size.x);
+			maxY = max(position.y + size.y, objects[index[i]].position.y + objects[index[i]].size.y);
+
+			sideX = maxX - minX;
+			sideY = maxY - minY;
+
+			x = size.x + objects[index[i]].size.x - sideX;
+			y = size.y + objects[index[i]].size.y - sideY;
 		}
 	}
 };
