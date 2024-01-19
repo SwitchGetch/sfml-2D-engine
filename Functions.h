@@ -2,14 +2,14 @@
 
 void level(RenderWindow& window, View& view), menu(RenderWindow& window, View& view);
 
-string getPlayerStats(Player player, vector<Object>& objects)
+string getPlayerStats(Player& player, bool& standing)
 {
 	return
 		" size:\n x: " + to_string(player.size.x) + "\n y: " + to_string(player.size.y) +
 		"\n\n position:\n x: " + to_string(player.position.x) + "\n y: " + to_string(player.position.y) +
 		"\n\n speed:\n x: " + to_string(player.speed.x) + "\n y: " + to_string(player.speed.y) +
 		"\n\n acceleration:\n x: " + to_string(player.acceleration.x) + "\n y: " + to_string(player.acceleration.y) +
-		"\n\n standing: " + (player.isStanding(objects) ? "true" : "false");
+		"\n\n standing: " + (standing ? "true" : "false");
 }
 
 
@@ -65,7 +65,8 @@ void level(RenderWindow& window, View& view)
 	high_resolution_clock::time_point start;
 	high_resolution_clock::time_point end;
 
-	Player player(Vector2f(50, 50), Vector2f(25, 475), Vector2f(0, 0), Vector2f(0, 1), "Textures/player.png");
+	Player player(Vector2f(50, 50), Vector2f(0, 500), Vector2f(0, 0), Vector2f(0, 1), "Textures/player.png");
+	bool standing = false;
 
 	Font font;
 	Text text;
@@ -75,28 +76,31 @@ void level(RenderWindow& window, View& view)
 	text.setFont(font);
 
 	Object ob0(Vector2f(400, 50), Vector2f(500, 250), ObjectType::Safe, "Textures/wood.png");
-	Object ob1(Vector2f(200, 100), Vector2f(100, 350), ObjectType::Safe, "Textures/grass.png");
-	Object ob2(Vector2f(200, 100), Vector2f(300, 450), ObjectType::Safe, "Textures/grass.png");
+	Object ob1(Vector2f(100, 100), Vector2f(100, 350), ObjectType::Safe, "Textures/grass.png");
+	Object ob2(Vector2f(100, 100), Vector2f(400, 450), ObjectType::Safe, "Textures/grass.png");
 	Object ob3(Vector2f(200, 100), Vector2f(500, 550), ObjectType::Safe, "Textures/grass.png");
 	Object ob4(Vector2f(100, 100), Vector2f(800, 650), ObjectType::Safe, "Textures/grass.png");
-	Object ob5(Vector2f(100, 100), Vector2f(200, 450), ObjectType::Safe, "Textures/dirt.png");
+	Object ob5(Vector2f(300, 50), Vector2f(200, 400), ObjectType::Safe, "Textures/wood.png");
 	Object ob6(Vector2f(100, 100), Vector2f(400, 550), ObjectType::Safe, "Textures/dirt.png");
 	Object ob7(Vector2f(300, 100), Vector2f(0, 650), ObjectType::Safe, "Textures/dirt.png");
 	Object ob8(Vector2f(100, 100), Vector2f(0, 550), ObjectType::Safe, "Textures/dirt.png");
 	Object ob9(Vector2f(100, 100), Vector2f(0, 250), ObjectType::Safe, "Textures/grass.png");
-	Object ob10(Vector2f(100, 100), Vector2f(250, 150), ObjectType::Safe, "Textures/wood.png");
+	Object ob10(Vector2f(200, 100), Vector2f(200, 150), ObjectType::Safe, "Textures/grass.png");
 	Object ob11(Vector2f(100, 100), Vector2f(0, 350), ObjectType::Safe, "Textures/dirt.png");
-	Object ob12(Vector2f(100, 100), Vector2f(250, 50), ObjectType::Dangerous, "Textures/spikes.png");
+	Object ob12(Vector2f(50, 50), Vector2f(500, 200), ObjectType::Dangerous, "Textures/spikes.png");
 	vector<Object> objects{ ob0, ob1, ob2, ob3, ob4, ob5, ob6, ob7, ob8, ob9, ob10, ob11, ob12 };
 
 	Object bg0(Vector2f(200, 100), Vector2f(0, 450), ObjectType::Safe, "Textures/bg_dirt.png");
 	Object bg1(Vector2f(300, 100), Vector2f(100, 550), ObjectType::Safe, "Textures/bg_dirt.png");
 	Object bg2(Vector2f(500, 100), Vector2f(300, 650), ObjectType::Safe, "Textures/bg_dirt.png");
-	vector<Object> background{ bg0, bg1, bg2 };
+	Object bg3(Vector2f(200, 300), Vector2f(200, 250), ObjectType::Safe, "Textures/bg_dirt.png");
+	vector<Object> background{ bg0, bg1, bg2, bg3 };
 
 	while (true)
 	{
 		start = high_resolution_clock::now();
+
+		standing = player.isStanding(objects);
 
 		Event event;
 		while (window.pollEvent(event))
@@ -116,6 +120,7 @@ void level(RenderWindow& window, View& view)
 
 					break;
 
+
 				case Keyboard::Scancode::Escape:
 
 					return menu(window, view);
@@ -123,10 +128,15 @@ void level(RenderWindow& window, View& view)
 			}
 		}
 
-		if (Keyboard::isKeyPressed(Keyboard::A)) player.position.x += -7;
-		if (Keyboard::isKeyPressed(Keyboard::D)) player.position.x += 7;
+		if (Keyboard::isKeyPressed(Keyboard::A) != Keyboard::isKeyPressed(Keyboard::D))
+		{
+			if (Keyboard::isKeyPressed(Keyboard::A)) player.speed.x = -5;
+			else player.speed.x = 5;
+		}
+		else player.speed.x = 0;
+		
 
-		if (player.isStanding(objects))
+		if (standing)
 		{
 			if (Keyboard::isKeyPressed(Keyboard::Space))
 			{
@@ -142,10 +152,8 @@ void level(RenderWindow& window, View& view)
 			}
 		}
 
-		player.position += player.speed;
-		player.speed += player.acceleration;
 
-		player.move(window, objects);
+		player.move(objects);
 
 
 		view.setCenter(Vector2f(player.position.x + player.size.x / 2, player.position.y + player.size.y / 2));
@@ -163,7 +171,7 @@ void level(RenderWindow& window, View& view)
 		if (stats_output)
 		{
 			text.setPosition(Vector2f(view.getCenter().x - view.getSize().x / 2, view.getCenter().y - view.getSize().y / 2));
-			text.setString(getPlayerStats(player, objects));
+			text.setString(getPlayerStats(player, standing));
 			window.draw(text);
 		}
 
